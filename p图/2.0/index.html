@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Movement Flow Over Time (Enhanced)</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Optional: Add a modern font like Roboto from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>Person Movement Flow Over Time (Prediction)</h1>
+    </div>
+    <div class="container">
+        <div id="map-container">
+            <svg id="flow-svg" width="100%" height="100%">
+                <defs>
+                    <!-- Slightly larger arrowhead, reference point adjusted -->
+                    <marker id="arrowhead" markerWidth="12" markerHeight="8"
+                    refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+                      <!-- Adjusted polygon points for a potentially clearer shape -->
+                      <polygon points="0 0, 10 4, 0 8" fill="#d9534f" />
+                    </marker>
+                  </defs>
+            </svg>
+            <!-- Points and labels added by JS -->
+        </div>
+        <div class="controls">
+            <button id="play-button">▶ Play</button>
+            <button id="pause-button" disabled>❚❚ Pause</button>
+            <div class="slider-container">
+                <input type="range" id="time-slider" min="0" max="1000" value="0">
+                <div id="timeline-labels">
+                    <!-- Timeline labels added by JS -->
+                </div>
+            </div>
+            <span id="time-display">Time: 2023-09-04 00:00</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

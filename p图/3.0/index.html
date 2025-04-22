@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Changed Title -->
+    <title>人员流动实时监控模拟平台</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Optional: Use a techy font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <!-- Orbitron for titles, Roboto for body -->
+</head>
+<body>
+    <!-- Added a wrapper for potential full-page background styling -->
+    <div class="platform-wrapper">
+        <div class="header">
+            <!-- Changed Title -->
+            <h1>人员流动实时监控模拟</h1>
+            <!-- Optional: Add corner brackets like in the example -->
+            <div class="header-corners">
+                <span class="corner top-left"></span>
+                <span class="corner top-right"></span>
+                <span class="corner bottom-left"></span>
+                <span class="corner bottom-right"></span>
+            </div>
+        </div>
+        <div class="container">
+            <div id="map-container">
+                 <!-- Map border effect elements -->
+                <div class="map-border top-left"></div>
+                <div class="map-border top-right"></div>
+                <div class="map-border bottom-left"></div>
+                <div class="map-border bottom-right"></div>
+
+                <svg id="flow-svg" width="100%" height="100%">
+                    <defs>
+                        <!-- Adjusted arrowhead for the new style -->
+                        <marker id="arrowhead" markerWidth="10" markerHeight="6"
+                        refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <!-- Use a brighter, techy color -->
+                          <polygon points="0 0, 9 3, 0 6" fill="#00e5ff" />
+                        </marker>
+                      </defs>
+                </svg>
+                <!-- Points and labels added by JS -->
+            </div>
+            <div class="controls">
+                 <!-- Control border effect elements -->
+                <div class="control-border top-left"></div>
+                <div class="control-border top-right"></div>
+                <div class="control-border bottom-left"></div>
+                <div class="control-border bottom-right"></div>
+
+                <button id="play-button">▶ Play</button>
+                <button id="pause-button" disabled>❚❚ Pause</button>
+                <div class="slider-container">
+                    <input type="range" id="time-slider" min="0" max="1000" value="0">
+                    <div id="timeline-labels">
+                        <!-- Timeline labels added by JS -->
+                    </div>
+                </div>
+                <span id="time-display">Time: 2023-09-04 00:00</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

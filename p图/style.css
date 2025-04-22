@@ -1,0 +1,179 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0; /* 页面的浅灰色背景 */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    background-color: #b71c1c; /* 图片顶部的深红色 */
+    color: white;
+    padding: 5px 20px; /* 稍微调整内边距 */
+    text-align: left; /* 标题靠左 */
+    height: 40px; /* 调整头部高度 */
+    display: flex;
+    align-items: center; /* 垂直居中标题 */
+    flex-shrink: 0;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.2em; /* 调整标题大小 */
+    font-weight: normal;
+}
+
+
+.container {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 防止内容溢出 */
+    box-sizing: border-box;
+}
+
+#map-container {
+    position: relative;
+    width: 100%;
+    flex-grow: 1; /* 占据剩余空间 */
+    background-color: #e3f2fd; /* 浅蓝色背景 */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    min-height: 400px; /* 保证一个最小高度 */
+}
+
+.location-point {
+    position: absolute;
+    width: 12px; /* 点的大小 */
+    height: 12px; /* 点的大小 */
+    background-color: blue;
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* 使坐标点位于圆心 */
+    cursor: default;
+}
+
+.location-label {
+    position: absolute;
+    transform: translate(-50%, -180%); /* 定位在点的正上方 */
+    white-space: nowrap; /* 防止标签换行 */
+    font-size: 10px; /* 调整标签字体大小 */
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7); /* 轻微背景提高可读性 */
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-shrink: 0; /* 防止控件区域被压缩 */
+}
+
+.controls button {
+    padding: 5px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+}
+.controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.slider-container {
+    flex-grow: 1;
+    margin: 0 15px;
+    position: relative;
+    padding-bottom: 20px; /* 为时间标签留出空间 */
+}
+
+#time-slider {
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 5px; /* 滑块和标签之间的距离 */
+}
+
+/* --- 时间轴标签样式 --- */
+#timeline-labels {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #666;
+    pointer-events: none; /* 防止标签干扰滑块操作 */
+}
+
+#timeline-labels span {
+    display: inline-block;
+    text-align: center;
+    position: relative; /* 用于定位刻度线 */
+    padding-top: 5px; /* 与刻度线的距离 */
+}
+/* 添加小刻度线 */
+#timeline-labels span::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 4px;
+    background-color: #999;
+}
+
+
+#time-display {
+    font-size: 12px;
+    color: #333;
+    min-width: 150px; /* 保证足够宽度显示时间 */
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* 自定义滑块样式 (可选, 浏览器兼容性可能不同) */
+#time-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #ddd;
+  border: none;
+  border-radius: 3px;
+}
+
+#time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #0d47a1; /* 深蓝色滑块 */
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px; /* 使滑块垂直居中于轨道 */
+}
+
+#time-slider::-moz-range-track {
+  height: 4px;
+  background: #ddd;
+  border: none;
+  border-radius: 3px;
+}
+
+#time-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #0d47a1;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}

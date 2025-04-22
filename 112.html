@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Movement Flow Simulation</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent scrollbars if content overflows slightly */
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .map-container {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            height: 65vh; /* Increased height slightly */
+            background-color: #e6f2ff;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .location {
+            position: absolute;
+            font-size: 10px; /* Smaller font for less overlap */
+            color: #000;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            background-color: rgba(255, 255, 255, 0.6); /* Slight background for readability */
+            padding: 1px 3px;
+            border-radius: 3px;
+            z-index: 1; /* Locations above people */
+        }
+        .location::before {
+            content: '';
+            display: inline-block;
+            width: 8px; /* Smaller dot */
+            height: 8px;
+            background-color: blue;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        /* --- Precise Coordinates (Adjust these based on visual layout) --- */
+        /* Format: [top%, left%] */
+        /* These need careful adjustment in the browser's developer tools */
+        #loc-507 { top: 18%; left: 15%; }
+        #loc-509 { top: 30%; left: 10%; }
+        #loc-510 { top: 42%; left: 8%; }
+        #loc-east-rest { top: 58%; left: 12%; }
+        #loc-east-hall { top: 75%; left: 18%; }
+        #loc-north-corridor { top: 85%; left: 35%; } /* Adjusted for pathing */
+        #loc-south-corridor { top: 85%; left: 55%; } /* Adjusted for pathing */
+        #loc-washroom { top: 75%; left: 65%; }
+        #loc-west-rest { top: 65%; left: 80%; }
+        #loc-west-hall { top: 55%; left: 85%; }
+        #loc-501 { top: 43%; left: 88%; }
+        #loc-502 { top: 33%; left: 85%; }
+        #loc-503 { top: 20%; left: 78%; }
+        #loc-504 { top: 10%; left: 65%; }
+        #loc-505 { top: 8%; left: 45%; }
+        #loc-506 { top: 10%; left: 28%; }
+        /* --- End Coordinates --- */
+
+        #people-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allow clicking through people to map if needed */
+            z-index: 2; /* People above locations? Or below (z-index: 0)? Let's try above */
+        }
+
+        .person {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: red;
+            opacity: 0.8;
+            /* Transition for smooth movement */
+            transition: top 1s linear, left 1s linear;
+            /* Offset to center the dot on the location */
+            transform: translate(-50%, -50%);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            max-width: 900px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .controls button {
+            padding: 5px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .timeline-slider {
+            flex-grow: 1;
+            margin: 0 15px;
+            cursor: pointer;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .timeline-slider:hover {
+            opacity: 1;
+        }
+        .timeline-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .timeline-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .time-display {
+            font-size: 14px;
+            color: #333;
+            min-width: 160px;
+            text-align: right;
+            font-weight: bold;
+        }
+        /* Simple Ticks - consider removing if too cluttered */
+        .timeline-container { position: relative; flex-grow: 1; margin: 0 15px; }
+        .timeline-ticks { /* ... existing style ... */ display: none; /* Hide ticks for cleaner look */}
+
+    </style>
+</head>
+<body>
+
+    <h1>Person Movement Flow Simulation (9am - 6pm)</h1>
+
+    <div class="map-container" id="map">
+        <div id="people-container">
+            <!-- People dots will be added here by JavaScript -->
+        </div>
+
+        <!-- Location points -->
+        <div class="location" id="loc-507" data-name="'507-人工智能联合创新实验室'" data-type="lab">507-AI Lab</div>
+        <div class="location" id="loc-506" data-name="'506-人工智能联合创新实验室'" data-type="lab">506-AI Lab</div>
+        <div class="location" id="loc-505" data-name="'505-人工智能联合创新实验室'" data-type="lab">505-AI Lab</div>
+        <div class="location" id="loc-504" data-name="'504-人工智能联合创新实验室'" data-type="lab">504-AI Lab</div>
+        <div class="location" id="loc-503" data-name="'503-无人驾驶实训室'" data-type="lab">503-Driving Sim</div>
+        <div class="location" id="loc-502" data-name="'502-XR联合创新实验室'" data-type="lab">502-XR Lab</div>
+        <div class="location" id="loc-501" data-name="'501- 5G通信联合创新实验室'" data-type="lab">501-5G Lab</div>
+        <div class="location" id="loc-509" data-name="'509- 大数据/VR实训室'" data-type="lab">509-Data/VR Lab</div>
+        <div class="location" id="loc-510" data-name="'510-中心机房'" data-type="utility">510-Server Room</div>
+        <div class="location" id="loc-east-rest" data-name="'东侧公共休息区'" data-type="rest">East Rest Area</div>
+        <div class="location" id="loc-west-rest" data-name="'西侧公共休息区'" data-type="rest">West Rest Area</div>
+        <div class="location" id="loc-washroom" data-name="'洗手间走廊'" data-type="utility">Washroom Area</div>
+        <div class="location" id="loc-east-hall" data-name="'东侧展厅'" data-type="hall">East Hall</div>
+        <div class="location" id="loc-west-hall" data-name="'西侧展厅'" data-type="hall">West Hall</div>
+        <div class="location" id="loc-north-corridor" data-name="'北侧走廊'" data-type="corridor">North Corridor</div>
+        <div class="location" id="loc-south-corridor" data-name="'南侧走廊'" data-type="corridor">South Corridor</div>
+    </div>
+
+    <div class="controls">
+        <button id="play-button">Play</button>
+        <button id="pause-button" disabled>Pause</button>
+        <div class="timeline-container">
+             <input type="range" id="timeline" class="timeline-slider" min="0" max="1000" value="0">
+             <!-- Ticks removed for simplicity -->
+        </div>
+        <div class="time-display" id="time-display">Time: 09:00:00</div>
+    </div>
+
+    <script>
+        // --- Simulation Parameters ---
+        const SIM_START_HOUR = 9;
+        const SIM_END_HOUR = 18;
+        const SIM_DURATION_HOURS = SIM_END_HOUR - SIM_START_HOUR;
+        const SIM_DURATION_SECONDS = SIM_DURATION_HOURS * 3600;
+        const UPDATE_INTERVAL_MS = 100; // Update simulation every 100ms (10 times per real second)
+        const TIME_MULTIPLIER = 60; // Each real second simulates 60 seconds (1 minute)
+        const NUM_PEOPLE = 15; // Number of people to simulate
+        const MOVEMENT_DURATION_SECONDS = 1; // How long the CSS transition takes
+
+        // --- DOM Elements ---
+        const mapContainer = document.getElementById('map');
+        const peopleContainer = document.getElementById('people-container');
+        const playButton = document.getElementById('play-button');
+        const pauseButton = document.getElementById('pause-button');
+        const slider = document.getElementById('timeline');
+        const timeDisplay = document.getElementById('time-display');
+
+        // --- State Variables ---
+        let locations = {}; // Will store { id: { name, type, x, y, element } }
+        let people = []; // Will store person objects { id, element, currentLocationId, destinationLocationId, state, moveStartTime, moveEndTime }
+        let currentSimTimeSeconds = 0; // Seconds elapsed since SIM_START_HOUR
+        let isPlaying = false;
+        let timerId = null;
+
+        // --- Helper Functions ---
+        function formatTime(totalSeconds) {
+            const hours = SIM_START_HOUR + Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            return `Time: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // --- Initialization ---
+        function initialize() {
+            // 1. Get Location Data
+            const locationElements = mapContainer.querySelectorAll('.location');
+            locationElements.forEach(el => {
+                const id = el.id;
+                // Use getBoundingClientRect relative to the map container for more accuracy
+                const mapRect = mapContainer.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const x = ((elRect.left + elRect.width / 2) - mapRect.left) / mapRect.width * 100; // %
+                const y = ((elRect.top + elRect.height / 2) - mapRect.top) / mapRect.height * 100; // %
+
+                locations[id] = {
+                    id: id,
+                    name: el.dataset.name || id,
+                    type: el.dataset.type || 'unknown',
+                    x: x, // Percentage
+                    y: y, // Percentage
+                    element: el
+                };
+            });
+
+            // 2. Create People
+            const locationIds = Object.keys(locations);
+            const startLocations = locationIds.filter(id => ['hall', 'lab'].includes(locations[id].type)); // Start in halls or labs
+            if (startLocations.length === 0) startLocations.push(locationIds[0]); // Fallback
+
+            for (let i = 0; i < NUM_PEOPLE; i++) {
+                const personId = `person-${i}`;
+                const startLocId = getRandomElement(startLocations);
+                const startLoc = locations[startLocId];
+
+                const personElement = document.createElement('div');
+                personElement.id = personId;
+                personElement.className = 'person';
+                personElement.style.left = `${startLoc.x}%`;
+                personElement.style.top = `${startLoc.y}%`;
+                 // Assign random colors
+                 personElement.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
+
+
+                peopleContainer.appendChild(personElement);
+
+                people.push({
+                    id: personId,
+                    element: personElement,
+                    currentLocationId: startLocId,
+                    destinationLocationId: null,
+                    state: 'idle', // 'idle' or 'moving'
+                    idleUntil: Math.random() * 600, // Start idle for 0-10 simulated minutes
+                    moveStartTime: 0,
+                    moveEndTime: 0,
+                });
+            }
+
+            // 3. Setup Controls
+            playButton.addEventListener('click', playSimulation);
+            pauseButton.addEventListener('click', pauseSimulation);
+            slider.addEventListener('input', handleSliderChange);
+            slider.max = SIM_DURATION_SECONDS; // Set slider max value
+            slider.value = 0;
+            timeDisplay.textContent = formatTime(0);
+        }
+
+        // --- Predictive Movement Logic ---
+        function getNextDestination(person) {
+            const currentLoc = locations[person.currentLocationId];
+            const currentHour = SIM_START_HOUR + Math.floor(currentSimTimeSeconds / 3600);
+            const possibleDestinations = Object.values(locations);
+
+            let targetType = 'lab'; // Default
+
+            // Simple Time-Based Logic:
+            if (currentHour >= 9 && currentHour < 12) { // Morning: Labs, maybe corridors/washroom
+                if (currentLoc.type === 'lab' && Math.random() < 0.1) { // Small chance to move from lab
+                     targetType = getRandomElement(['lab', 'corridor', 'rest', 'washroom']);
+                } else if (currentLoc.type !== 'lab') {
+                    targetType = 'lab'; // Go to lab if not already there
+                }
+            } else if (currentHour >= 12 && currentHour < 14) { // Lunchtime: Rest areas, halls
+                 if (Math.random() < 0.6) { // Higher chance to move
+                     targetType = getRandomElement(['rest', 'hall', 'corridor', 'washroom']);
+                 } else {
+                      targetType = currentLoc.type; // Stay put sometimes
+                 }
+            } else if (currentHour >= 14 && currentHour < 17) { // Afternoon: Labs, maybe corridors/washroom
+                 if (currentLoc.type === 'lab' && Math.random() < 0.15) { // Slightly higher chance to move
+                     targetType = getRandomElement(['lab', 'corridor', 'rest', 'washroom']);
+                 } else if (currentLoc.type !== 'lab' && currentLoc.type !== 'utility') {
+                    targetType = 'lab';
+                 }
+            } else if (currentHour >= 17 && currentHour < 18) { // End of Day: Halls, corridors (leaving)
+                if (Math.random() < 0.5) {
+                    targetType = getRandomElement(['hall', 'corridor']);
+                } else {
+                     targetType = currentLoc.type; // Stay put sometimes
+                }
+            }
+
+             // Filter locations by target type, exclude current location and utility rooms unless specifically targeted
+            let potentialDests = possibleDestinations.filter(loc =>
+                loc.id !== person.currentLocationId &&
+                (loc.type === targetType || (targetType === 'washroom' && loc.type ==='utility')) && // Allow targeting washroom specifically
+                (loc.type !== 'utility' || targetType === 'washroom') // Avoid other utility unless specified
+             );
+
+            // If no destination of target type, try any non-utility, non-current location
+            if (potentialDests.length === 0) {
+                 potentialDests = possibleDestinations.filter(loc => loc.id !== person.currentLocationId && loc.type !== 'utility');
+             }
+
+             // If still no destination, stay put (should rarely happen)
+            if (potentialDests.length === 0) {
+                 return person.currentLocationId;
+             }
+
+            return getRandomElement(potentialDests).id;
+        }
+
+
+        //

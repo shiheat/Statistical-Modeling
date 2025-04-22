@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Movement Flow Over Time (with Prediction)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Person Movement Flow Over Time (with Prediction)</h1>
+    </div>
+    <div class="container">
+        <div id="map-container">
+            <!-- SVG Layer for Flow Lines -->
+            <svg id="flow-svg" width="100%" height="100%">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                    refX="8" refY="3.5" orient="auto" markerUnits="strokeWidth">
+                      <polygon points="0 0, 10 3.5, 0 7" fill="#FF0000" />
+                    </marker>
+                  </defs>
+            </svg>
+            <!-- 地点标记将由 JavaScript 动态添加 (保持不变) -->
+        </div>
+        <div class="controls">
+            <!-- 控件保持不变 -->
+            <button id="play-button">Play</button>
+            <button id="pause-button" disabled>Pause</button>
+            <div class="slider-container">
+                <input type="range" id="time-slider" min="0" max="1000" value="0">
+                <div id="timeline-labels">
+                    <!-- 时间标签将由 JavaScript 动态添加 -->
+                </div>
+            </div>
+            <span id="time-display">Time: 2023-09-04 00:00</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

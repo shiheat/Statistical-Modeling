@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Movement Flow Over Time</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f8ff; /* Light blue background similar to image */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .map-container {
+            position: relative;
+            width: 80%;
+            max-width: 900px;
+            height: 60vh; /* Adjust height as needed */
+            background-color: #e6f2ff; /* Slightly different blue for contrast */
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            overflow: hidden; /* Hide anything outside the bounds */
+        }
+        .location {
+            position: absolute;
+            font-size: 12px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .location::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: blue;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        /* Approximate positions based on the image (top, left percentages) */
+        #loc-507 { top: 18%; left: 15%; }
+        #loc-509 { top: 30%; left: 10%; }
+        #loc-510 { top: 42%; left: 8%; }
+        #loc-east-rest { top: 58%; left: 12%; }
+        #loc-east-hall { top: 75%; left: 18%; }
+        #loc-north-corridor { top: 80%; left: 35%; }
+        #loc-south-corridor { top: 80%; left: 48%; }
+        #loc-washroom { top: 75%; left: 65%; }
+        #loc-west-rest { top: 65%; left: 80%; }
+        #loc-west-hall { top: 55%; left: 85%; }
+        #loc-501 { top: 43%; left: 88%; }
+        #loc-502 { top: 33%; left: 85%; }
+        #loc-503 { top: 20%; left: 78%; }
+        #loc-504 { top: 10%; left: 65%; }
+        #loc-505 { top: 8%; left: 45%; }
+        #loc-506 { top: 10%; left: 28%; }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            max-width: 900px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .controls button {
+            padding: 5px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .timeline-slider {
+            flex-grow: 1;
+            margin: 0 15px;
+            cursor: pointer;
+            /* Basic styling for range input */
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .timeline-slider:hover {
+            opacity: 1;
+        }
+        .timeline-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4CAF50; /* Green thumb */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .timeline-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .time-display {
+            font-size: 14px;
+            color: #333;
+            min-width: 160px; /* Ensure space for time */
+            text-align: right;
+        }
+
+        /* Add timeline ticks visually (simplified) */
+        .timeline-container {
+            position: relative;
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+         .timeline-ticks {
+            position: absolute;
+            bottom: -15px; /* Position below the slider */
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #666;
+            pointer-events: none; /* Make ticks non-interactive */
+         }
+         .timeline-ticks span {
+             position: relative;
+         }
+        .timeline-ticks span::before {
+             content: '|';
+             position: absolute;
+             top: -10px; /* Position above the text */
+             left: 50%;
+             transform: translateX(-50%);
+         }
+
+    </style>
+</head>
+<body>
+
+    <h1>Person Movement Flow Over Time</h1>
+
+    <div class="map-container">
+        <!-- Location points based on the image -->
+        <div class="location" id="loc-507">'507-人工智能联合创新实验室'</div>
+        <div class="location" id="loc-506">'506-人工智能联合创新实验室'</div>
+        <div class="location" id="loc-505">'505-人工智能联合创新实验室'</div>
+        <div class="location" id="loc-504">'504-人工智能联合创新实验室'</div>
+        <div class="location" id="loc-503">'503-无人驾驶实训室'</div>
+        <div class="location" id="loc-502">'502-XR联合创新实验室'</div>
+        <div class="location" id="loc-501">'501- 5G通信联合创新实验室'</div>
+        <div class="location" id="loc-west-hall">'西侧展厅'</div>
+        <div class="location" id="loc-west-rest">'西侧公共休息区'</div>
+        <div class="location" id="loc-washroom">'洗手间走廊'</div>
+        <div class="location" id="loc-south-corridor">'南侧走廊'</div>
+        <div class="location" id="loc-north-corridor">'北侧走廊'</div>
+        <div class="location" id="loc-east-hall">'东侧展厅'</div>
+        <div class="location" id="loc-east-rest">'东侧公共休息区'</div>
+        <div class="location" id="loc-510">'510-中心机房'</div>
+        <div class="location" id="loc-509">'509- 大数据/VR实训室'</div>
+    </div>
+
+    <div class="controls">
+        <button id="play-button">Play</button>
+        <button id="pause-button">Pause</button>
+        <div class="timeline-container">
+             <input type="range" id="timeline" class="timeline-slider" min="0" max="100" value="50">
+             <!-- Simplified tick marks representation -->
+             <div class="timeline-ticks">
+                <span>2023-09-04 00:00</span>
+                <span>2023-09-08 02:00</span>
+                <span>2023-09-12 00:00</span>
+                <span>2023-09-16 02:00</span>
+                <span>2023-09-19 16:00</span>
+            </div>
+         </div>
+        <div class="time-display" id="time-display">Time: 2023-09-14 08:00</div>
+    </div>
+
+    <!-- JavaScript would be needed here to make the controls and timeline functional -->
+    <script>
+        // Basic placeholder for functionality
+        const slider = document.getElementById('timeline');
+        const timeDisplay = document.getElementById('time-display');
+        const playButton = document.getElementById('play-button');
+        const pauseButton = document.getElementById('pause-button');
+
+        // Example: Update time display when slider changes (this needs proper date calculation)
+        slider.addEventListener('input', () => {
+            // This is just a placeholder value update, not linked to actual time
+            // A real implementation would map slider value to the date range
+             const startTime = new Date('2023-09-04T00:00:00').getTime();
+             const endTime = new Date('2023-09-19T16:00:00').getTime();
+             const totalDuration = endTime - startTime;
+             const currentTime = startTime + (totalDuration * (slider.value / 100));
+             const currentDate = new Date(currentTime);
+
+             // Format the date and time similar to the image
+            const formattedDate = currentDate.toISOString().slice(0, 10);
+             const formattedTime = currentDate.toTimeString().slice(0, 5); // HH:MM
+             timeDisplay.textContent = `Time: ${formattedDate} ${formattedTime}`;
+
+            console.log(`Slider value changed to: ${slider.value}`);
+            // In a real application, you would trigger data updates/animations here
+        });
+
+        playButton.addEventListener('click', () => {
+            console.log('Play button clicked');
+            // Add logic to start animation/time progression
+        });
+
+        pauseButton.addEventListener('click', () => {
+            console.log('Pause button clicked');
+            // Add logic to stop animation/time progression
+        });
+
+         // Set initial slider value based on displayed time (approximate)
+         const initialDisplayTime = new Date('2023-09-14T08:00:00').getTime();
+         const startTime = new Date('2023-09-04T00:00:00').getTime();
+         const endTime = new Date('2023-09-19T16:00:00').getTime();
+         const totalDuration = endTime - startTime;
+         const initialProgress = (initialDisplayTime - startTime) / totalDuration;
+         slider.value = Math.round(initialProgress * 100);
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,341 @@
+/* --- Base & Fonts --- */
+:root {
+    --primary-dark: #0a192f; /* Deep navy blue */
+    --secondary-dark: #112240; /* Slightly lighter navy */
+    --accent-cyan: #64ffda; /* Bright cyan/teal */
+    --accent-green: #adff2f; /* Greenyellow for some glows */
+    --light-text: #ccd6f6; /* Light greyish blue for text */
+    --medium-text: #8892b0; /* Medium greyish blue */
+    --border-cyan: rgba(100, 255, 218, 0.5); /* Semi-transparent cyan for borders */
+    --grid-line: rgba(136, 146, 176, 0.15); /* Faint grid lines */
+}
+
+body {
+    font-family: 'Roboto', sans-serif; /* Roboto for general text */
+    margin: 0;
+    padding: 0;
+    background-color: var(--primary-dark);
+    color: var(--light-text);
+    display: flex;
+    justify-content: center; /* Center the content */
+    align-items: center; /* Center vertically */
+    min-height: 100vh; /* Ensure it takes full height */
+    overflow: hidden; /* Prevent scrollbars if content overflows slightly */
+}
+
+.platform-wrapper {
+    width: 95%; /* Control the overall width */
+    max-width: 1400px; /* Max width */
+    height: 90vh; /* Control the height */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary-dark); /* Ensure wrapper background */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+
+/* --- Header --- */
+.header {
+    background-color: transparent; /* Transparent background */
+    color: var(--accent-cyan);
+    padding: 10px 20px;
+    text-align: center; /* Center title */
+    flex-shrink: 0;
+    position: relative; /* For corner positioning */
+    border: 1px solid var(--border-cyan); /* Add subtle border */
+    margin-bottom: 15px;
+     box-shadow: 0 0 15px rgba(100, 255, 218, 0.1); /* Subtle glow */
+}
+
+.header h1 {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif; /* Techy font for title */
+    font-size: 1.6em;
+    font-weight: 500;
+    letter-spacing: 2px; /* Add spacing */
+}
+
+/* Optional Corner Brackets for Header */
+.header-corners .corner {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+}
+.header-corners .top-left { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.header-corners .top-right { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.header-corners .bottom-left { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.header-corners .bottom-right { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+
+/* --- Main Container --- */
+.container {
+    flex-grow: 1;
+    padding: 0; /* Remove padding, handled by wrapper */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- Map Container --- */
+#map-container {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    background-color: var(--secondary-dark); /* Slightly lighter dark blue */
+    /* --- Grid Background --- */
+    background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 30px 30px; /* Adjust grid size */
+    border: 1px solid var(--border-cyan); /* Cyan border */
+    border-radius: 0px; /* Sharp corners */
+    margin-bottom: 15px;
+    min-height: 350px; /* Adjust min height */
+    overflow: hidden;
+     box-shadow: inset 0 0 10px rgba(0,0,0,0.4); /* Inner shadow */
+}
+
+/* Map Corner Border Effects */
+.map-border {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+    z-index: 6; /* Above grid, below points */
+}
+.map-border.top-left { top: 5px; left: 5px; border-width: 2px 0 0 2px; }
+.map-border.top-right { top: 5px; right: 5px; border-width: 2px 2px 0 0; }
+.map-border.bottom-left { bottom: 5px; left: 5px; border-width: 0 0 2px 2px; }
+.map-border.bottom-right { bottom: 5px; right: 5px; border-width: 0 2px 2px 0; }
+
+
+/* --- SVG Layer & Flow Lines --- */
+#flow-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.flow-line {
+    stroke: var(--accent-cyan); /* Bright cyan lines */
+    stroke-opacity: 0.7;
+    stroke-linecap: round;
+    /* Adjust thickness range for tech look - thinner lines */
+    /* stroke-width range will be set by JS (e.g., 1px to 3px) */
+    transition: stroke-width 0.15s ease-out;
+    filter: drop-shadow(0 0 1px var(--accent-cyan)); /* Subtle glow */
+}
+
+/* Update arrowhead fill */
+#arrowhead polygon {
+    fill: var(--accent-cyan); /* Match line color */
+}
+
+
+/* --- Location Points --- */
+.location-point {
+    position: absolute;
+    width: 10px; /* Base size */
+    height: 10px;
+    background-color: var(--accent-green); /* Bright green center */
+    border: none; /* Remove previous border */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: default;
+    z-index: 10;
+    /* --- Glowing Effect --- */
+    box-shadow:
+        0 0 5px var(--accent-green),
+        0 0 10px var(--accent-green),
+        0 0 15px rgba(173, 255, 47, 0.7), /* Greenyellow glow */
+        0 0 20px rgba(173, 255, 47, 0.5);
+    /* Optional: Pulsing Animation */
+     animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 5px var(--accent-green), 0 0 10px var(--accent-green), 0 0 15px rgba(173, 255, 47, 0.7), 0 0 20px rgba(173, 255, 47, 0.5); }
+    50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 8px var(--accent-green), 0 0 16px var(--accent-green), 0 0 24px rgba(173, 255, 47, 0.8), 0 0 32px rgba(173, 255, 47, 0.6); }
+    100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 5px var(--accent-green), 0 0 10px var(--accent-green), 0 0 15px rgba(173, 255, 47, 0.7), 0 0 20px rgba(173, 255, 47, 0.5); }
+}
+
+/* --- Location Labels --- */
+.location-label {
+    position: absolute;
+    transform: translate(-50%, -180%); /* Adjust vertical position */
+    white-space: nowrap;
+    font-size: 10px;
+    color: var(--light-text); /* Light text color */
+    background-color: rgba(10, 25, 47, 0.7); /* Dark semi-transparent bg */
+    padding: 2px 5px;
+    border-radius: 3px;
+    z-index: 15;
+    pointer-events: none;
+     border: 1px solid rgba(136, 146, 176, 0.3); /* Faint border */
+}
+
+/* --- Controls Area --- */
+.controls {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--secondary-dark); /* Match map background */
+    border: 1px solid var(--border-cyan);
+    border-radius: 0px; /* Sharp corners */
+    flex-shrink: 0;
+    position: relative; /* For corner borders */
+     box-shadow: 0 0 10px rgba(100, 255, 218, 0.1); /* Subtle glow */
+}
+/* Control Corner Border Effects */
+.control-border {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+}
+.control-border.top-left { top: 3px; left: 3px; border-width: 1px 0 0 1px; }
+.control-border.top-right { top: 3px; right: 3px; border-width: 1px 1px 0 0; }
+.control-border.bottom-left { bottom: 3px; left: 3px; border-width: 0 0 1px 1px; }
+.control-border.bottom-right { bottom: 3px; right: 3px; border-width: 0 1px 1px 0; }
+
+
+/* --- Buttons --- */
+.controls button {
+    padding: 6px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    border: 1px solid var(--accent-cyan);
+    background-color: transparent; /* Transparent background */
+    color: var(--accent-cyan);
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: normal;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    text-transform: uppercase; /* Uppercase text */
+     letter-spacing: 1px;
+}
+
+.controls button:hover {
+    background-color: rgba(100, 255, 218, 0.1); /* Faint cyan bg on hover */
+    color: #ffffff;
+}
+
+.controls button:active {
+     background-color: rgba(100, 255, 218, 0.2);
+}
+
+.controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    border-color: var(--medium-text);
+    color: var(--medium-text);
+    background-color: transparent;
+}
+
+/* --- Slider Container & Timeline --- */
+.slider-container {
+    flex-grow: 1;
+    margin: 0 15px;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+#time-slider {
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 5px;
+    height: 4px; /* Thinner track */
+    appearance: none;
+    background: transparent; /* Base transparency */
+    outline: none;
+}
+
+/* --- Custom Slider Track --- */
+#time-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--medium-text); /* Dark track */
+  border: none;
+  border-radius: 2px;
+   box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+}
+#time-slider::-moz-range-track {
+  height: 4px;
+  background: var(--medium-text);
+  border: none;
+  border-radius: 2px;
+   box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+}
+
+/* --- Custom Slider Thumb --- */
+#time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-cyan); /* Cyan thumb */
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px; /* Center thumb */
+  border: none; /* Remove border */
+  box-shadow: 0 0 5px var(--accent-cyan); /* Thumb glow */
+}
+#time-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--accent-cyan);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 5px var(--accent-cyan);
+}
+
+/* --- Timeline Labels --- */
+#timeline-labels {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--medium-text); /* Use medium text color */
+    pointer-events: none;
+}
+
+#timeline-labels span {
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    padding-top: 6px;
+}
+#timeline-labels span::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 4px;
+    background-color: var(--medium-text); /* Match label color */
+}
+
+
+/* --- Time Display --- */
+#time-display {
+    font-size: 12px;
+    color: var(--accent-cyan); /* Cyan text */
+    min-width: 160px;
+    text-align: right;
+    white-space: nowrap;
+    font-family: 'Orbitron', sans-serif; /* Use techy font */
+    letter-spacing: 1px;
+}
